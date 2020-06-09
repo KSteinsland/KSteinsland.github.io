@@ -1,29 +1,78 @@
-var c = document.getElementById("myCanvas");
+var h1 = document.getElementById("myHeader");
+
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+
+const width = canvas.width;
+const height = canvas.height;
+
 var slider = document.getElementById("myRange");
 slider.defaultValue = 0;
-var ctx = c.getContext("2d");
-
-const width = c.width;
-const height = c.height;
 
 drawing = new Image();
 drawing.src = "kart.png";
 
-drawing.onload = function() {
-   	ctx.drawImage(drawing,0,0, width, height);
-};
 
-slider.oninput = function() {
-	ctx.drawImage(drawing,0,0, width, height);
- 	draw(this.value/100);
-}
 
+//strucutes
 function Point(x, y) {
   	this.x = x;
   	this.y = y;
 }
 
 
+function Place(point, text, imgPath) {
+	this.point = point;
+	this.text = text;
+	this.imgPath = imgPath;
+}
+
+function Trip(){
+	this.places = [
+		new Place(	new Point(80, 630), 
+				 	"Stavanger",
+				 	"/bilde.png"), 
+
+		new Place(	new Point(70, 600), 
+				 	"Bergen",
+				 	"/bilde.png"), 
+
+		new Place(	new Point(100, 560), 
+				 	"Agatunet",
+				 	"/bilde.png"), 
+
+		new Place(	new Point(70, 450), 
+				 	"Shetland",
+				 	"/bilde.png"),
+
+		new Place(	new Point(400, 100), 
+				 	"Frosta",
+				 	"/bilde.png"), 
+	];
+	this.points = [];
+	for (var i = 0; i < this.places.length; i++) {
+		this.points.push(this.places[i].point);
+	}
+}
+
+trip = new Trip();
+
+
+
+//Events
+drawing.onload = function() {
+   	ctx.drawImage(drawing,0,0, width, height);
+   	UpdateCanvas(0);
+};
+
+slider.oninput = function() {
+	ctx.drawImage(drawing,0,0, width, height);
+ 	UpdateCanvas(this.value/100);
+}
+
+
+
+//drawing points and lines 
 function drawPoint(p) {
 	ctx.beginPath();
 	ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
@@ -31,52 +80,59 @@ function drawPoint(p) {
 	ctx.fill();
 }
 
-function drawPartialLineBetweenPoints(p1, p2, relativeLength) {
-	//angle = Math.atan( (p2.y - p1.y) / (p2.x - p1.x) );
-	angle = Math.atan2( (p2.y - p1.y) , (p2.x - p1.x) );
-	hyp = Math.sqrt( (p2.y - p1.y)**2 + (p2.x - p1.x)**2);
-
+function drawLine(p1, p2) {
 	ctx.strokeStyle = "#FF0000";
 	ctx.moveTo(p1.x, p1.y);
-	ctx.lineTo(p1.x + Math.cos(angle)*hyp*relativeLength, p1.y + Math.sin(angle)*hyp*relativeLength);
+	ctx.lineTo(p2.x, p2.y);
 	ctx.stroke();
 }
 
+function calculatePartialLine(p1, p2, lineRatioCompleted) {
+	angle = Math.atan2( (p2.y - p1.y) , (p2.x - p1.x) );
+	hyp = Math.sqrt( (p2.y - p1.y)**2 + (p2.x - p1.x)**2);
 
-function drawPath(points, relativeLength) {
-	console.log(relativeLength);
+	point1 = p1;
+	point2 = new Point(p1.x + Math.cos(angle)*hyp*lineRatioCompleted, p1.y + Math.sin(angle)*hyp*lineRatioCompleted);
 
-	includedPoints = 1 + Math.floor(relativeLength * (points.length - 1));
-	console.log(includedPoints);
+	return [point1, point2];
+}
 
-	const r = 1 / (points.length - 1) //0.2
-	extraLength = ((relativeLength + 0.00001) % r) / r; 
 
-	console.log("extra: " + extraLength);
+function drawPath(points, includedPoints, pathRatioCompleted) {
+	//pathRatioCompleted is a float [0, 1] that represents how much of the path to display. 
+	const r = 1 / (points.length - 1)
+	extraLength = ((pathRatioCompleted + 0.00001) % r) / r;   //+ 0.00001 is an ugly floating point hack
 
 	for (var i = 0; i < includedPoints; i++) {
 		drawPoint(points[i]);
 	}
-	for (var i = 0; i < includedPoints - 1; i++) {
-		drawPartialLineBetweenPoints(points[i], points[i + 1], 1);
-	}
-	drawPartialLineBetweenPoints(points[includedPoints - 1], points[includedPoints], extraLength);
 
+	for (var i = 0; i < includedPoints - 1; i++) {
+		drawLine(points[i], points[i + 1]);
+	}
+
+	if (points.length != includedPoints) {
+		ps = calculatePartialLine(points[includedPoints - 1], points[includedPoints], extraLength);
+		drawLine(ps[0], ps[1]);
+	}
+	
 }
 
 
-function draw(ratio) {
-	var p1 = new Point(80, 630);
-	var p2 = new Point(70, 600);
-	var p3 = new Point(100, 560);
-	var p4 = new Point(70, 450);
-	var p5 = new Point(200, 200);
-	var p6 = new Point(400, 100);
+
+//Info
+function displayInfo(placeIndex){
+	h1.innerHTML = trip.places[placeIndex].text;
+}
 
 
-	points = [p1, p2, p3, p4, p5, p6];
+function UpdateCanvas(ratioFromSlider) {
+	points = trip.points;
 
-	drawPath(points, ratio);
+	includedPoints = 1 + Math.floor(ratioFromSlider * (points.length - 1));
+
+	drawPath(points, includedPoints, ratioFromSlider);
+	displayInfo(includedPoints - 1);
 }
 
 
