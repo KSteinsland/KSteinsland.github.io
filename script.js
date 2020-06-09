@@ -23,13 +23,6 @@ function Point(x, y) {
   	this.y = y;
 }
 
-function drawLineBetweenPoints(p1, p2) {
-	ctx.strokeStyle = "#FF0000";
-	ctx.moveTo(p1.x, p1.y);
-	ctx.lineTo(p2.x, p2.y);
-	ctx.stroke();
-}
-
 
 function drawPoint(p) {
 	ctx.beginPath();
@@ -51,10 +44,15 @@ function drawPartialLineBetweenPoints(p1, p2, relativeLength) {
 
 
 function drawPath(points, relativeLength) {
-	includedPoints = 1 + Math.floor(relativeLength * (points.length - 1));
+	console.log(relativeLength);
 
-	const r = 1 / (points.length - 1)
-	extraLength = (relativeLength % r) / r;
+	includedPoints = 1 + Math.floor(relativeLength * (points.length - 1));
+	console.log(includedPoints);
+
+	const r = 1 / (points.length - 1) //0.2
+	extraLength = ((relativeLength + 0.00001) % r) / r; 
+
+	console.log("extra: " + extraLength);
 
 	for (var i = 0; i < includedPoints; i++) {
 		drawPoint(points[i]);
