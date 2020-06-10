@@ -10,7 +10,7 @@ var slider = document.getElementById("myRange");
 slider.defaultValue = 0;
 
 
-
+/*
 function getMousePos(canvas, evt) {
     var rect = canvas.getBoundingClientRect();
     return {
@@ -24,7 +24,7 @@ canvas.addEventListener('mousemove', function(evt) {
     var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
     console.log("x: " + mousePos.x + ", y: " + mousePos.y);
 }, false);
-
+*/
 
 mapImage = new Image();
 mapImage.src = "images/map.png";
@@ -122,37 +122,46 @@ function Trip(){
 		new Place(	new Point(443, 620), 
 					false,
 				 	"Stavanger",
-				 	"/bilde.png"), 
+				 	"images/stavanger.png"), 
 
 		new Place(	new Point(432, 453), 
 					false,
 				 	"Bergen",
-				 	"/bilde.png"), 
+				 	"images/bergen.png"), 
 
 		new Place(	new Point(505, 470),
 					false,
 				 	"Aga",
-				 	"/bilde.png"), 
+				 	"images/aga.png"), 
 
 		new Place(	new Point(71, 484),
 					true,
 				 	"Shetland",
-				 	"/bilde.png"),
+				 	"images/shetland.png"),
 
 		new Place(	new Point(717, 77), 
 					true,
 				 	"Frosta",
-				 	"/bilde.png"),
+				 	"images/frosta.png"),
 
 		new Place(	new Point(439, 339), 
 					false,
 				 	"Gulen",
-				 	"/bilde.png"),  
+				 	"images/gulen.png"),  
 	];
 	this.points = [];
 	for (var i = 0; i < this.places.length; i++) {
 		this.points.push(this.places[i].point);
 	}
+	
+	
+	this.placeImages = [];
+	for (var i = 0; i < this.places.length; i++) {
+		img = new Image();
+		img.src = this.places[i].imgPath;
+		this.placeImages.push(img);
+	}
+
 }
 
 trip = new Trip();
@@ -237,6 +246,9 @@ function calculatePartialLine(p1, p2, lineRatioCompleted) {
 	return [point1, point2, angle];
 }
 
+function displayInfo(placeIndex){
+	ctx.drawImage(trip.placeImages[placeIndex], 0, 0, 600, 450);
+}
 
 function drawPath(points, includedPoints, pathRatioCompleted) {
 	//pathRatioCompleted is a float [0, 1] that represents how much of the path to display. 
@@ -265,13 +277,10 @@ function drawPath(points, includedPoints, pathRatioCompleted) {
 			drawBuss(ps[1], angle);
 		}
 	}
-}
 
-
-
-//Info
-function displayInfo(placeIndex){
-	h1.innerHTML = trip.places[placeIndex].text;
+	if (extraLength < 0.15) {
+		displayInfo(currentPlace - 1);
+	}
 }
 
 
@@ -283,7 +292,6 @@ function UpdateCanvas(ratioFromSlider) {
 	includedPoints = 1 + Math.floor(ratioFromSlider * (points.length - 1));
 
 	drawPath(points, includedPoints, ratioFromSlider);
-	displayInfo(includedPoints - 1);
 }
 
 
