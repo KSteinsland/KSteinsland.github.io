@@ -2,10 +2,21 @@
 
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+	<meta charset="utf-8">
 
-  <title>Prototype</title>
-  <meta name="author" content="Kristoffer Steinsland">
+  	<title>vandreutstilling</title>
+  	<meta name="author" content="Kristoffer Steinsland">
+
+  	<style>
+		#mapCanvas {
+			width:80%;
+			height:80%;
+		}		
+
+		#mapRange {
+			width: 80%;
+		}
+  	</style>
 
 
   <link rel="stylesheet" href="css/styles.css">
@@ -13,14 +24,10 @@
 </head>
 
 <body>
-	<h1 id="myHeader">VANDREUTSTILLING</h1>
-	<br>
- 	<canvas id="myCanvas" width="1000" height="800" style="z-index: 0;"></canvas>
-  	</canvas>
-  	<div class="slidecontainer">
-  		<input type="range" min="0" max="100" value="50" class="slider" id="myRange" style="width: 1000px;">
-	</div>
-  	<script src="script.js"></script>
-
+	<div id="mapContainer">
+	 	<canvas id="mapCanvas" width="1000", height="800"></canvas>
+	  	<input type="range" min="0" max="100" value="50" class="slider" id="mapRange">
+	  	<script src="script.js"></script>
+  	</div>
 </body>
 </html

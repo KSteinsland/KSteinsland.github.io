@@ -1,14 +1,19 @@
-var h1 = document.getElementById("myHeader");
-
-var canvas = document.getElementById("myCanvas");
+var canvas = document.getElementById("mapCanvas");
 var ctx = canvas.getContext("2d");
+
+const originalWidth = 1000;
+const originalHeight = 800;
 
 const width = canvas.width;
 const height = canvas.height;
 
-var slider = document.getElementById("myRange");
+var slider = document.getElementById("mapRange");
 slider.defaultValue = 0;
 
+slider.oninput = function() {
+	ctx.drawImage(mapImage,0,0, width, height);
+ 	UpdateCanvas(this.value/100);
+}
 
 /*
 function getMousePos(canvas, evt) {
@@ -34,68 +39,68 @@ mapImage.onload = function() {
 
 
 //Buss images
-const bussRescaleFactor = 3;
+const bussRescaleFactor = width / 3000;
 
 bussImage1 = new Image();
 bussImage1.src = "images/buss1.png";
 bussImage1.onload = function(){
-	bussImage1.width = bussImage1.width/bussRescaleFactor;
-	bussImage1.height = bussImage1.height/bussRescaleFactor;
+	bussImage1.width = bussImage1.width*bussRescaleFactor;
+	bussImage1.height = bussImage1.height*bussRescaleFactor;
 };
 
 bussImage2 = new Image();
 bussImage2.src = "images/buss2.png";
 bussImage2.onload = function(){
-	bussImage2.width = bussImage2.width/bussRescaleFactor;
-	bussImage2.height = bussImage2.height/bussRescaleFactor;
+	bussImage2.width = bussImage2.width*bussRescaleFactor;
+	bussImage2.height = bussImage2.height*bussRescaleFactor;
 };
 
 bussImage3 = new Image();
 bussImage3.src = "images/buss3.png";
 bussImage3.onload = function(){
-	bussImage3.width = bussImage3.width/bussRescaleFactor;
-	bussImage3.height = bussImage3.height/bussRescaleFactor;
+	bussImage3.width = bussImage3.width*bussRescaleFactor;
+	bussImage3.height = bussImage3.height*bussRescaleFactor;
 };
 
 bussImage4 = new Image();
 bussImage4.src = "images/buss4.png";
 bussImage4.onload = function(){
-	bussImage4.width = bussImage4.width/bussRescaleFactor;
-	bussImage4.height = bussImage4.height/bussRescaleFactor;
+	bussImage4.width = bussImage4.width*bussRescaleFactor;
+	bussImage4.height = bussImage4.height*bussRescaleFactor;
 };
 
 bussImages = [bussImage1, bussImage2, bussImage3, bussImage4];  
 
 
 //Boat images
-const boatRescaleFactor = 3;
+const boatRescaleFactor = bussRescaleFactor;
 
 boatImage1 = new Image();
 boatImage1.src = "images/boat1.png";
 boatImage1.onload = function(){
-	boatImage1.width = boatImage1.width/boatRescaleFactor;
-	boatImage1.height = boatImage1.height/boatRescaleFactor;
+	boatImage1.width = boatImage1.width*boatRescaleFactor;
+	boatImage1.height = boatImage1.height*boatRescaleFactor;
 };
 
 boatImage2 = new Image();
 boatImage2.src = "images/boat2.png";
 boatImage2.onload = function(){
-	boatImage2.width = boatImage2.width/boatRescaleFactor;
-	boatImage2.height = boatImage2.height/boatRescaleFactor;
+	boatImage2.width = boatImage2.width*boatRescaleFactor;
+	boatImage2.height = boatImage2.height*boatRescaleFactor;
 };
 
 boatImage3 = new Image();
 boatImage3.src = "images/boat3.png";
 boatImage3.onload = function(){
-	boatImage3.width = boatImage3.width/boatRescaleFactor;
-	boatImage3.height = boatImage3.height/boatRescaleFactor;
+	boatImage3.width = boatImage3.width*boatRescaleFactor;
+	boatImage3.height = boatImage3.height*boatRescaleFactor;
 };
 
 boatImage4 = new Image();
 boatImage4.src = "images/boat4.png";
 boatImage4.onload = function(){
-	boatImage4.width = boatImage4.width/boatRescaleFactor;
-	boatImage4.height = boatImage4.height/boatRescaleFactor;
+	boatImage4.width = boatImage4.width*boatRescaleFactor;
+	boatImage4.height = boatImage4.height*boatRescaleFactor;
 };
 
 boatImages = [boatImage1, boatImage2, boatImage3, boatImage4];  
@@ -151,8 +156,13 @@ function Trip(){
 	];
 	this.points = [];
 	for (var i = 0; i < this.places.length; i++) {
+		//rescale according to canvas width
+		this.places[i].point.x *= width / originalWidth;
+		this.places[i].point.y *= height / originalHeight; 
+
 		this.points.push(this.places[i].point);
 	}
+
 	
 	
 	this.placeImages = [];
@@ -168,15 +178,10 @@ trip = new Trip();
 
 
 
-//Events
-slider.oninput = function() {
-	ctx.drawImage(mapImage,0,0, width, height);
- 	UpdateCanvas(this.value/100);
-}
 
 
 
-//drawing points and lines 
+//Drawing on canvas
 function drawPoint(p) {
 	ctx.beginPath();
 	ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
@@ -247,7 +252,8 @@ function calculatePartialLine(p1, p2, lineRatioCompleted) {
 }
 
 function displayInfo(placeIndex){
-	ctx.drawImage(trip.placeImages[placeIndex], 0, 0, 600, 450);
+	const padding = 20; 
+	ctx.drawImage(trip.placeImages[placeIndex], padding, padding, width - 2*padding, height - 2*padding);
 }
 
 function drawPath(points, includedPoints, pathRatioCompleted) {
